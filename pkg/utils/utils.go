@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func ParseBody(r http.Request, x interface{}) {
+func ParseBody(r *http.Request, x interface{}) {
 	if body, err := io.ReadAll(r.Body); err == nil {
 		// Unmarshal the body and copy to x
 		if err := json.Unmarshal([]byte(body), x); err != nil {
