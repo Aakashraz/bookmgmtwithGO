@@ -50,11 +50,11 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 	// Create an instance of the models.Book struct
-	createBook := &models.Book{}
-	// Parse the request body and populate the createBook struct
-	utils.ParseBody(r, createBook)
-	// Call the CreateBook method on the createBook instance
-	b := createBook.CreateBook()
+	newBook := &models.Book{}
+	// Parse the request body and populate the newBook struct
+	utils.ParseBody(r, newBook)
+	// Call the CreateBook method on the newBook instance
+	b := newBook.CreateBook()
 
 	res, _ := json.Marshal(b)
 	w.Header().Set("Content-Type", "application/json")
@@ -67,6 +67,52 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func DeleteBook() {
+func DeleteBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	bookId := vars["bookId"]
+	ID, err := strconv.ParseInt(bookId, 0, 0)
+	if err != nil {
+		log.Println("error while parsing into integer")
+	}
 
+	book := models.DeleteBook(ID)
+	res, _ := json.Marshal(book)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(res)
+	if err != nil {
+		log.Printf("error while writing into response: %s", err)
+	}
+}
+
+func UpdateBook(w http.ResponseWriter, r *http.Request) {
+	updateBook := models.Book{}
+	utils.ParseBody(r, updateBook)
+	vars := mux.Vars(r)
+	bookId := vars["bookId"]
+	ID, err := strconv.ParseInt(bookId, 0, 0)
+	if err != nil {
+		log.Println("error while parsing into integer id")
+	}
+
+	bookDetails, db := models.GetBookById(ID)
+	//	to fetch the details of book for updating
+	if updateBook.Name != " " {
+		bookDetails.Name = updateBook.Name
+	}
+	if updateBook.Publication != " " {
+		bookDetails.Publication = updateBook.Publication
+	}
+	if updateBook.Author != " " {
+		bookDetails.Author = updateBook.Author
+	}
+	db.Save(&bookDetails)
+
+	res, _ := json.Marshal(bookDetails)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(res)
+	if err != nil {
+		log.Printf("error while writing into response: %s", err)
+	}
 }
