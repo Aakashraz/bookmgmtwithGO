@@ -53,6 +53,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	newBook := &models.Book{}
 	// Parse the request body and populate the newBook struct
 	utils.ParseBody(r, newBook)
+	log.Printf("marshal value: %v", r)
 	// Call the CreateBook method on the newBook instance
 	b := newBook.CreateBook()
 
@@ -86,8 +87,12 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateBook(w http.ResponseWriter, r *http.Request) {
-	updateBook := models.Book{}
+	// Create an instance of the models.Book struct
+	updateBook := &models.Book{}
 	utils.ParseBody(r, updateBook)
+	// to test the marshalled value
+	log.Printf("marshal value for update: %v", r)
+
 	vars := mux.Vars(r)
 	bookId := vars["bookId"]
 	ID, err := strconv.ParseInt(bookId, 0, 0)
@@ -96,16 +101,21 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bookDetails, db := models.GetBookById(ID)
+	// print to check the value in updateBook and Bookdetails for debugging
+	log.Printf("Bookdetails: %+v", bookDetails)
+	log.Printf("updateBook: %+v", updateBook)
+
 	//	to fetch the details of book for updating
-	if updateBook.Name != " " {
+	if updateBook.Name != "" {
 		bookDetails.Name = updateBook.Name
 	}
-	if updateBook.Publication != " " {
+	if updateBook.Publication != "" {
 		bookDetails.Publication = updateBook.Publication
 	}
-	if updateBook.Author != " " {
+	if updateBook.Author != "" {
 		bookDetails.Author = updateBook.Author
 	}
+
 	db.Save(&bookDetails)
 
 	res, _ := json.Marshal(bookDetails)

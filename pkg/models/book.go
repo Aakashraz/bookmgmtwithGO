@@ -16,7 +16,9 @@ type Book struct {
 
 func init() {
 	config.Connect()
-	db := config.GetDB()
+	db = config.GetDB()
+	//db := config.GetDB() to db = config.GetDB()
+	// because there was data connection but still not creating new rows
 	db.AutoMigrate(&Book{})
 }
 
